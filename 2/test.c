@@ -91,8 +91,21 @@ void test2_12(void)
     show_int(x & 0xff, BIN);
     show_int((~x) ^ 0xff, HEX);
     show_int((~x) ^ 0xff, BIN);
-    show_int((~(x & 0xff)) ^ ((~x) ^ 0xff), HEX);
-    show_int((~(x & 0xff)) ^ ((~x) ^ 0xff), BIN);
+    show_int(x | 0xff, HEX);
+    show_int(x | 0xff, BIN);
+}
+
+int equal(int x, int y)
+{
+    return !(x ^ y);
+    // return !(x & (~y));
+}
+
+void test2_15(void)
+{
+    printf("test 2.15\n");
+    printf("%s\n", equal(26, 26) ? "true" : "false");
+    printf("%s\n", equal(26, 0) ? "true" : "false");
 }
 
 int main(void)
@@ -104,5 +117,6 @@ int main(void)
     test2_10();
     test2_11();
     test2_12();
+    test2_15();
     return 0;
 }
