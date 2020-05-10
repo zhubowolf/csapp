@@ -1,6 +1,7 @@
 #include "show_bytes.h"
 #include <stdio.h>
 #include <string.h>
+#include <limits.h>
 
 void test_show_bytes(int val)
 {
@@ -108,6 +109,51 @@ void test2_15(void)
     printf("%s\n", equal(26, 0) ? "true" : "false");
 }
 
+float sum_elements(float a[], unsigned length)
+{
+    float result = 0;
+    // for (int i = 0; i <= length - 1; i++) // bug
+    for (int i = 0; i < length; i++)
+    {
+        result += a[i];
+    }
+    return result;
+}
+
+void test2_25(void)
+{
+    float a[] = {0};
+    printf("%f\n", sum_elements(a, 0));
+}
+
+int strlonger(char * s, char * t)
+{
+    // return strlen(s) - strlen(t) > 0;// bug
+    return strlen(s) > strlen(t);
+}
+
+void test2_26(void)
+{
+    char *s = "12345";
+    char *t = "1234567";
+    printf("%s longer than %s:%s\n", s, t, strlonger(s, t) ? "true" : "false");
+}
+
+int uadd_ok(unsigned x, unsigned y)
+{
+    return (x + y) >= x;
+}
+
+void test2_27(void)
+{
+    unsigned x = 0xffffffff;
+    unsigned y = 1;
+    unsigned x1 = 0xffffffff;
+    unsigned y1 = 0;
+    printf("%x + %x is overflow:%s\n", x, y, uadd_ok(x, y) ? "false" : "true");
+    printf("%x + %x is overflow:%s\n", x1, y1, uadd_ok(x1, y1) ? "false" : "true");
+}
+
 int main(void)
 {
     test_show_bytes(26);
@@ -118,5 +164,8 @@ int main(void)
     test2_11();
     test2_12();
     test2_15();
+    test2_25();
+    test2_26();
+    test2_27();
     return 0;
 }
