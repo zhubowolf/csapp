@@ -122,10 +122,12 @@ float sum_elements(float a[], unsigned length)
 
 void test2_25(void)
 {
+    printf("test 2.25\n");
     float a[] = {0};
     printf("%f\n", sum_elements(a, 0));
 }
 
+// Determine whether string s is longer than string t
 int strlonger(char * s, char * t)
 {
     // return strlen(s) - strlen(t) > 0;// bug
@@ -134,24 +136,66 @@ int strlonger(char * s, char * t)
 
 void test2_26(void)
 {
+    printf("test 2.26\n");
     char *s = "12345";
     char *t = "1234567";
     printf("%s longer than %s:%s\n", s, t, strlonger(s, t) ? "true" : "false");
 }
 
+// Determine whether arguments can be added without overflow
 int uadd_ok(unsigned x, unsigned y)
 {
-    return (x + y) >= x;
+    return (x + y) > x | (x + y) > y;
 }
 
 void test2_27(void)
 {
+    printf("test 2.27\n");
     unsigned x = 0xffffffff;
     unsigned y = 1;
     unsigned x1 = 0xffffffff;
     unsigned y1 = 0;
     printf("%x + %x is overflow:%s\n", x, y, uadd_ok(x, y) ? "false" : "true");
     printf("%x + %x is overflow:%s\n", x1, y1, uadd_ok(x1, y1) ? "false" : "true");
+}
+
+// Determine whether arguments can be added without overflow
+int tadd_ok(int x, int y)
+{
+    int sum = x + y;
+    int neg_over = x < 0 && y < 0 && sum >= 0;
+    int pos_over = x >= 0 && y >= 0 && sum < 0;
+    return !neg_over && !pos_over;
+}
+
+void test2_30(void)
+{
+    printf("test 2.30\n");
+    int a = 0x7fffffff, b = 0x7fffffff;
+    int c = 0x80000000, d = 0x80000000;
+    int e = 0x76543210, f = 0x87654321;
+    printf("%d + %d = %d %s\n", a, b, a + b, tadd_ok(a, b) ? "normal" : "overflow");
+    printf("%d + %d = %d %s\n", c, d, c + d, tadd_ok(c, d) ? "normal" : "overflow");
+    printf("%d + %d = %d %s\n", e, f, e + f, tadd_ok(e, f) ? "normal" : "overflow");
+}
+
+// Determine whether arguments can be subtracted without overflow
+int tsub_ok(int x, int y)
+{
+    return tadd_ok(x, -y);//buggy
+
+    // return 0;
+}
+
+void test2_32(void)
+{
+    printf("test 2.32\n");
+    int a = 0x7fffffff, b = 0x7fffffff;
+    int c = 0x80000000, d = 0x80000000;
+    int e = 0x76543210, f = 0x87654321;
+    printf("%d - %d = %d %s\n", a, b, a - b, tsub_ok(a, b) ? "normal" : "overflow");
+    printf("%d - %d = %d %s\n", c, d, c - d, tsub_ok(c, d) ? "normal" : "overflow");
+    printf("%d - %d = %d %s\n", e, f, e - f, tsub_ok(e, f) ? "normal" : "overflow");
 }
 
 int main(void)
@@ -167,5 +211,11 @@ int main(void)
     test2_25();
     test2_26();
     test2_27();
+    test2_30();
+    int a = 0x80000000;
+    int b = 0x80000001;
+    printf("a=%d, -a=%d\n", a, -a);
+    printf("b=%d, -b=%d\n", b, -b);
+    test2_32();
     return 0;
 }
