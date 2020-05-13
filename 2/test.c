@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <limits.h>
+#include <stdint.h>
+#include <stdlib.h>
 
 void test_show_bytes(int val)
 {
@@ -171,8 +173,8 @@ int tadd_ok(int x, int y)
 void test2_30(void)
 {
     printf("test 2.30\n");
-    int a = 0x7fffffff, b = 0x7fffffff;
-    int c = 0x80000000, d = 0x80000000;
+    int a = INT_MAX, b = INT_MAX;
+    int c = INT_MIN, d = INT_MIN;
     int e = 0x76543210, f = 0x87654321;
     printf("%d + %d = %d %s\n", a, b, a + b, tadd_ok(a, b) ? "normal" : "overflow");
     printf("%d + %d = %d %s\n", c, d, c + d, tadd_ok(c, d) ? "normal" : "overflow");
@@ -182,20 +184,71 @@ void test2_30(void)
 // Determine whether arguments can be subtracted without overflow
 int tsub_ok(int x, int y)
 {
-    return tadd_ok(x, -y);//buggy
-
-    // return 0;
+    // return tadd_ok(x, -y);//buggy
+    if (y > INT_MIN)
+    {
+        return tadd_ok(x, -y);
+    }
+    else
+    {
+        return 1;
+    }
 }
 
 void test2_32(void)
 {
     printf("test 2.32\n");
-    int a = 0x7fffffff, b = 0x7fffffff;
-    int c = 0x80000000, d = 0x80000000;
+    int a = INT_MAX, b = INT_MAX;
+    int c = -1, d = INT_MIN;
     int e = 0x76543210, f = 0x87654321;
     printf("%d - %d = %d %s\n", a, b, a - b, tsub_ok(a, b) ? "normal" : "overflow");
     printf("%d - %d = %d %s\n", c, d, c - d, tsub_ok(c, d) ? "normal" : "overflow");
     printf("%d - %d = %d %s\n", e, f, e - f, tsub_ok(e, f) ? "normal" : "overflow");
+}
+
+int tmult_ok(int x, int y)
+{
+    // int p = x * y; //buggy
+    // return !x || p / x == y;
+
+    int64_t p = (int64_t)x * y;
+    return p == (int)p;
+}
+
+void test2_36(void)
+{
+    printf("test 2.36\n");
+    int a = INT_MAX, b = INT_MAX;
+    int c = -1, d = INT_MIN;
+    int e = 0x76543210, f = 0x87654321;
+    printf("%d * %d = %d %s\n", a, b, (int)(a * b), tmult_ok(a, b) ? "normal" : "overflow");
+    printf("%d * %d = %d %s\n", c, d, (int)(c * d), tmult_ok(c, d) ? "normal" : "overflow");
+    printf("%d * %d = %d %s\n", e, f, (int)(e * f), tmult_ok(e, f) ? "normal" : "overflow");
+}
+
+//XDR vulnerability
+void* copy_elements(void * ele_src[], int ele_cnt, size_t ele_size)
+{
+    void *result = malloc(ele_cnt * ele_size);
+    if (result == NULL)
+    {
+        return NULL;
+    }
+    void *next = result;
+    for (size_t i = 0; i < ele_cnt; i++)
+    {
+        memcpy(next, ele_src[i], ele_size);
+        next += ele_size;
+    }
+    return result;
+}
+
+void test_XDR_vulnerability(void)
+{
+    char * array[INT_MAX];
+    array[0] = "xdr vulnerability";
+    char *p = (char *)copy_elements((void**)array, 1048577, 4096);
+    printf("%s", p);
 }
 
 int main(void)
@@ -212,10 +265,14 @@ int main(void)
     test2_26();
     test2_27();
     test2_30();
-    int a = 0x80000000;
-    int b = 0x80000001;
+    int a = INT_MIN;
+    int b = INT_MIN + 1;
+    // int c = -1 * INT_MIN;   // warning
+    // int d = -1 * a; //no warning
     printf("a=%d, -a=%d\n", a, -a);
     printf("b=%d, -b=%d\n", b, -b);
     test2_32();
+    test2_36();
+    test_XDR_vulnerability();
     return 0;
 }
