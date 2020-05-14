@@ -233,7 +233,7 @@ void* copy_elements(void * ele_src[], int ele_cnt, size_t ele_size)
     {
         return NULL;
     }
-    
+
     void *result = malloc(ele_cnt * ele_size);
     if (result == NULL)
     {
@@ -255,17 +255,32 @@ void test_XDR_vulnerability(void)
     char *p = (char *)copy_elements((void**)array, 1048577, 4096);
     if (p)
     {
-        printf("%s\n", p);
+        printf("%s\n", (char*)p);
         return;
     }
     printf("copy elements failed!\n");
     p = (char *)copy_elements((void**)array, 10, 4096);
     if (p)
     {
-        printf("%s\n", p);
+        printf("%s\n", (char*)p);
         return;
     }
     printf("copy elements failed!\n");
+}
+
+int div16(int x)
+{
+    int bias = (x >> 31) & 0xf;
+    return (x + bias) >> 4;
+}
+
+void test2_42(void)
+{
+    printf("test 2.42\n");
+    printf("256 / 16 = %d\n", div16(256));
+    printf("-256 / 16 = %d\n", div16(-256));
+    printf("%d / 16 = %d\n", INT_MAX, div16(INT_MAX));
+    printf("%d / 16 = %d\n", INT_MIN, div16(INT_MIN));
 }
 
 int main(void)
@@ -290,6 +305,7 @@ int main(void)
     printf("b=%d, -b=%d\n", b, -b);
     test2_32();
     test2_36();
-    test_XDR_vulnerability();
+    // test_XDR_vulnerability();
+    test2_42();
     return 0;
 }
