@@ -229,6 +229,11 @@ void test2_36(void)
 //XDR vulnerability
 void* copy_elements(void * ele_src[], int ele_cnt, size_t ele_size)
 {
+    if (!tmult_ok(ele_cnt, ele_size))
+    {
+        return NULL;
+    }
+    
     void *result = malloc(ele_cnt * ele_size);
     if (result == NULL)
     {
@@ -245,10 +250,22 @@ void* copy_elements(void * ele_src[], int ele_cnt, size_t ele_size)
 
 void test_XDR_vulnerability(void)
 {
-    char * array[INT_MAX];
+    char * array[1] = {NULL};
     array[0] = "xdr vulnerability";
     char *p = (char *)copy_elements((void**)array, 1048577, 4096);
-    printf("%s", p);
+    if (p)
+    {
+        printf("%s\n", p);
+        return;
+    }
+    printf("copy elements failed!\n");
+    p = (char *)copy_elements((void**)array, 10, 4096);
+    if (p)
+    {
+        printf("%s\n", p);
+        return;
+    }
+    printf("copy elements failed!\n");
 }
 
 int main(void)
