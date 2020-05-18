@@ -11,9 +11,17 @@ void test_show_bytes(int val)
     int iVal = val;
     float fVal = (float)iVal;
     int *pVal = &iVal;
+    short s = 12345;
+    long l = 123456789;
+    float f = 1.0;
+    double d = 1.0;
     show_int(iVal, HEX);
     show_float(fVal, HEX);
     show_pointer(pVal, HEX);
+    show_short(s, HEX);
+    show_long(l, HEX);
+    show_float(f, BIN);
+    show_double(d, BIN);
 }
 
 void test2_5(void)
