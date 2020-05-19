@@ -291,6 +291,49 @@ void test2_42(void)
     printf("%d / 16 = %d\n", INT_MIN, div16(INT_MIN));
 }
 
+void test2_59(void)
+{
+    printf("test 2.59\n");
+    int x = 0x89abcdef;
+    int y = 0x76543210;
+    show_int(x, HEX);
+    show_int(y, HEX);
+    show_int((int)((x & 0xff) | (y & (~0xff))), HEX);
+}
+
+unsigned replace_byte(unsigned x, int i, unsigned char b)
+{
+    if (i < 0)
+    {
+        printf("error: i is negative\n");
+        return x;
+    }
+
+    unsigned ret = x & (~(0xff << (i * 8)));
+    ret |= b << (i * 8);
+    return ret;
+}
+
+void test2_60(void)
+{
+    printf("test 2.60\n");
+    printf("%x\n", replace_byte(0x12345678, 2, 0xab));
+    printf("%x\n", replace_byte(0x12345678, 0, 0xab));
+}
+
+int int_shifts_are_arithmetic(void)
+{
+    int i = -1;
+    return !(i ^ (i >> 1));
+}
+
+void test2_62(void)
+{
+    printf("test 2.62\n");
+    printf("Int shifts are arithmetic?%s\n", int_shifts_are_arithmetic() ? "true"
+                                                                       : "false");
+}
+
 int main(void)
 {
     test_show_bytes(26);
@@ -315,5 +358,7 @@ int main(void)
     test2_36();
     // test_XDR_vulnerability();
     test2_42();
+    test2_59();
+    test2_62();
     return 0;
 }
